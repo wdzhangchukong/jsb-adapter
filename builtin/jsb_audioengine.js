@@ -21,19 +21,19 @@
  * THE SOFTWARE.
  */
 
-(function (jsb) {
+(function (Audio) {
 
-if (!jsb || !AudioEngine)
+if (!Audio || !Audio.AudioEngine)
     return
 
-AudioEngine.AudioState = {
+Audio.AudioEngine.AudioState = {
     ERROR: -1,
     INITIALZING: 0,
     PLAYING: 1,
     PAUSED: 2
 }
 
-AudioEngine.INVALID_AUDIO_ID = -1
-AudioEngine.TIME_UNKNOWN = -1
+Audio.AudioEngine.INVALID_AUDIO_ID = -1
+Audio.AudioEngine.TIME_UNKNOWN = -1
 
-})(jsb)
+})(Audio)
