@@ -25,10 +25,14 @@
  ****************************************************************************/
 
 // JS to Native bridges
+if (!window.reflection) {
+    window.reflection = {}
+}
+
 if(window.JavascriptJavaBridge && cc.sys.os == cc.sys.OS_ANDROID){
-    jsb.reflection = new JavascriptJavaBridge();
+    reflection.bridge = new JavascriptJavaBridge();
     cc.sys.capabilities["keyboard"] = true;
 }
 else if(window.JavaScriptObjCBridge && (cc.sys.os == cc.sys.OS_IOS || cc.sys.os == cc.sys.OS_OSX)){
-    jsb.reflection = new JavaScriptObjCBridge();
+    reflection.bridge = new JavaScriptObjCBridge();
 }

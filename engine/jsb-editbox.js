@@ -23,59 +23,50 @@
  THE SOFTWARE.
  ****************************************************************************/
 
- (function () {
-	if (!(cc && cc.EditBox)) {
-		return;
-	}
-	
-	let KeyboardReturnType = cc.EditBox.KeyboardReturnType;
-	let InputMode = cc.EditBox.InputMode;
-	let InputFlag = cc.EditBox.InputFlag;
-	let _p = cc.EditBox._EditBoxImpl.prototype;
+(function () {
+    if (!(cc && cc.EditBox)) {
+        return;
+    }
 
-	function getInputType(type) {
-		switch (type) {
-			case InputMode.EMAIL_ADDR:
-				return 'email';
-			case InputMode.NUMERIC:
-			case InputMode.DECIMAL:
-				return 'number';
-			case InputMode.PHONE_NUMBER:
-				return 'phone';
-			case InputMode.URL:
-				return 'url';
-			case InputMode.SINGLE_LINE:
-			case InputMode.ANY:
-			default:
-				return 'text';
-		}
-	}
+    let KeyboardReturnType = cc.EditBox.KeyboardReturnType;
+    let InputMode = cc.EditBox.InputMode;
+    let InputFlag = cc.EditBox.InputFlag;
+    let _p = cc.EditBox._EditBoxImpl.prototype;
 
-	function getKeyboardReturnType (type) {
-		switch (type) {
-			case KeyboardReturnType.DEFAULT:
-			case KeyboardReturnType.DONE:
-				return 'done';
-			case KeyboardReturnType.SEND:
-				return 'send';
-			case KeyboardReturnType.SEARCH:
-				return 'search';
-			case KeyboardReturnType.GO:
-				return 'go';
-			case KeyboardReturnType.NEXT:
-				return 'next';
-		}
-		return 'done';
-	}
+    function getInputType(type) {
+        switch (type) {
+            case InputMode.EMAIL_ADDR:
+                return 'email';
+            case InputMode.NUMERIC:
+            case InputMode.DECIMAL:
+                return 'number';
+            case InputMode.PHONE_NUMBER:
+                return 'phone';
+            case InputMode.URL:
+                return 'url';
+            case InputMode.SINGLE_LINE:
+            case InputMode.ANY:
+            default:
+                return 'text';
+        }
+    }
 
-	function updateLabelsInvisible (editBox) {
-		let placeholderLabel = editBox._placeholderLabel;
-		let textLabel = editBox._textLabel;
-		let displayText = editBox._impl._text;
-		
-		placeholderLabel.node.active = displayText === '';
-		textLabel.node.active = displayText !== '';
-	}
+    function getKeyboardReturnType(type) {
+        switch (type) {
+            case KeyboardReturnType.DEFAULT:
+            case KeyboardReturnType.DONE:
+                return 'done';
+            case KeyboardReturnType.SEND:
+                return 'send';
+            case KeyboardReturnType.SEARCH:
+                return 'search';
+            case KeyboardReturnType.GO:
+                return 'go';
+            case KeyboardReturnType.NEXT:
+                return 'next';
+        }
+        return 'done';
+    }
 
 	cc.EditBox.prototype.editBoxEditingDidBegan = function () {
 		cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
@@ -95,62 +86,38 @@
 		let editBoxImpl = this;
 		editBoxImpl._editing = true;
 
-		let multiline = this._inputMode === InputMode.ANY;
-		let inputTypeString = getInputType(editBoxImpl._inputMode);
-		if (editBoxImpl._inputFlag === InputFlag.PASSWORD)
-			inputTypeString = 'password';
+        placeholderLabel.node.active = displayText === '';
+        textLabel.node.active = displayText !== '';
+    }
 
-		let rect = this._getRect();
-		
-		jsb.inputBox.show({
-			defaultValue: editBoxImpl._text,
-			maxLength: editBoxImpl._maxLength,
-			multiple: multiline,
-			confirmHold: false,
-			confirmType: getKeyboardReturnType(editBoxImpl._returnType),
-			inputType: inputTypeString,
-			originX: rect.x,
-			originY: rect.y,
-			width: rect.width,
-			height: rect.height
-		});
-		if (this._delegate) {
-			let editBox = this._delegate;
-			cc.Component.EventHandler.emitEvents(editBox.editingDidBegan, editBox);
-			editBox.node.emit('editing-did-began', editBox);
-			updateLabelsInvisible(editBox);
-		}
+    _p.createInput = function () {
+        let editBoxImpl = this;
 
-		function onConfirm(res) {
-			editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
-		}
-		jsb.inputBox.onConfirm(onConfirm);
+        let multiline = this._inputMode === InputMode.ANY;
+        let inputTypeString = getInputType(editBoxImpl._inputMode);
+        if (editBoxImpl._inputFlag === InputFlag.PASSWORD)
+            inputTypeString = 'password';
 
-		function onInput(res) {
-			if (res.value.length > editBoxImpl._maxLength) {
-				res.value = res.value.slice(0, editBoxImpl._maxLength);
-			}
-			if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged) {
-				if (editBoxImpl._text !== res.value) {
-					editBoxImpl._text = res.value;
-					editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
-				}
-			}
-		}
-		jsb.inputBox.onInput(onInput);
+        let rect = this._getRect();
 
-		function onComplete(res) {
-			editBoxImpl._endEditing();
-			jsb.inputBox.offConfirm(onConfirm);
-			jsb.inputBox.offInput(onInput);
-			jsb.inputBox.offComplete(onComplete);
-		}
-		jsb.inputBox.onComplete(onComplete);
-	};
+        qg.showKeyboard({
+            defaultValue: editBoxImpl._text,
+            maxLength: editBoxImpl._maxLength,
+            multiple: multiline,
+            confirmHold: false,
+            confirmType: getKeyboardReturnType(editBoxImpl._returnType),
+        });
+        if (this._delegate) {
+            let editBox = this._delegate;
+            cc.Component.EventHandler.emitEvents(editBox.editingDidBegan, editBox);
+            editBox.node.emit('editing-did-began', editBox);
+            updateLabelsInvisible(editBox);
+        }
 
-	_p.setTabIndex = function (index) {
-		// jsb not support 
-	};
+        function onConfirm(res) {
+            editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
+        }
+        qg.onKeyboardConfirm(onConfirm);
 
 	_p.setFocus = function () {
 		this._beginEditing();
@@ -160,112 +127,124 @@
 		return this._editing;
 	},
 
-	_p.stayOnTop = function (flag) {	
-		// jsb not support 	
-	};
+    _p.setTabIndex = function (index) {
+        // not support 
+    };
 
 	_p._updateMatrix = function () {
 		// jsb not support 			
 	};
 
-	_p._updateSize = function (newWidth, newHeight) {
-		// jsb not support
-	};
+    _p.isFocused = function () {
+        // not support 	
+    },
 
-	_p._getRect = function() {
-		let node = this._node, 
+        _p.stayOnTop = function (flag) {
+            // not support 	
+        };
+
+    _p._updateMatrix = function () {
+
+    };
+
+    _p._updateSize = function (newWidth, newHeight) {
+        // not support
+    };
+
+    _p._getRect = function () {
+        let node = this._node,
             scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         let dpr = cc.view._devicePixelRatio;
-    
+
         let math = cc.vmath;
-        let matrix = math.mat4.create();  
+        let matrix = math.mat4.create();
         node.getWorldMatrix(matrix);
         let contentSize = node._contentSize;
         let vec3 = cc.v3();
         vec3.x = -node._anchorPoint.x * contentSize.width;
         vec3.y = -node._anchorPoint.y * contentSize.height;
-    
-        
+
+
         math.mat4.translate(matrix, matrix, vec3);
-    
+
         scaleX /= dpr;
         scaleY /= dpr;
-    
+
         let finalScaleX = matrix.m00 * scaleX;
         let finaleScaleY = matrix.m05 * scaleY;
 
         return {
-        	x: matrix.m12 * finalScaleX,
-        	y: matrix.m13 * finaleScaleY,
-        	width: contentSize.width * finalScaleX,
-        	height: contentSize.height * finaleScaleY
+            x: matrix.m12 * finalScaleX,
+            y: matrix.m13 * finaleScaleY,
+            width: contentSize.width * finalScaleX,
+            height: contentSize.height * finaleScaleY
         };
-	}
+    }
 
-	_p.setMaxLength = function (maxLength) {
-		if (!isNaN(maxLength)) {
-			if(maxLength < 0) {
-				//we can't set Number.MAX_VALUE to input's maxLength property
-				//so we use a magic number here, it should works at most use cases.
-				maxLength = 65535;
-			}
-			this._maxLength = maxLength;
-		}
-	};
+    _p.setMaxLength = function (maxLength) {
+        if (!isNaN(maxLength)) {
+            if (maxLength < 0) {
+                //we can't set Number.MAX_VALUE to input's maxLength property
+                //so we use a magic number here, it should works at most use cases.
+                maxLength = 65535;
+            }
+            this._maxLength = maxLength;
+        }
+    };
 
-	_p.setString = function (text) {
-		this._text = text;
-		this._updateInput();
-		updateLabelsInvisible(this._delegate);
-	};
+    _p.setString = function (text) {
+        this._text = text;
+        this._updateInput();
+        updateLabelsInvisible(this._delegate);
+    };
 
-	_p._updateInput = function () {
-		let tmpText = this._text;
-		if (this._inputFlag === InputFlag.PASSWORD) {
-			tmpText = tmpText.replace(/./g, '*');
-		}
-		this._delegate._textLabel.string = tmpText;
-	};
+    _p._updateInput = function () {
+        let tmpText = this._text;
+        if (this._inputFlag === InputFlag.PASSWORD) {
+            tmpText = tmpText.replace(/./g, '*');
+        }
+        this._delegate._textLabel.string = tmpText;
+    };
 
-	_p.setFontSize = function (fontSize) {
-		this._edFontSize = fontSize || this._edFontSize;
-		this._delegate._textLabel.fontSize = this._edFontSize;
-	};
+    _p.setFontSize = function (fontSize) {
+        this._edFontSize = fontSize || this._edFontSize;
+        this._delegate._textLabel.fontSize = this._edFontSize;
+    };
 
-	_p.setFontColor = function (color) {
-		this._textColor = color;
-		this._delegate._textLabel.fontColor = this._textColor;
-	};
+    _p.setFontColor = function (color) {
+        this._textColor = color;
+        this._delegate._textLabel.fontColor = this._textColor;
+    };
 
-	_p.setInputMode = function (inputMode) {
-		this._inputMode = inputMode;
-	};
+    _p.setInputMode = function (inputMode) {
+        this._inputMode = inputMode;
+    };
 
-	_p.setInputFlag = function (inputFlag) {
-		this._inputFlag = inputFlag;
-	};
+    _p.setInputFlag = function (inputFlag) {
+        this._inputFlag = inputFlag;
+    };
 
-	_p.setReturnType = function (returnType) {
-		this._returnType = returnType;
-	};
+    _p.setReturnType = function (returnType) {
+        this._returnType = returnType;
+    };
 
 	_p._beginEditing = function () {
 		this.createInput();
 	};
 
-	_p._endEditing = function () {
-		let self = this;
-		if (this._editing) {
-			self._endEditingOnMobile();
-			if (self._delegate && self._delegate.editBoxEditingDidEnded) {
-				self._delegate.editBoxEditingDidEnded();
-			}
-		}
-		this._editing = false;
-	};
+    _p._endEditing = function () {
+        let self = this;
+        if (this._editing) {
+            self._endEditingOnMobile();
+            if (self._delegate && self._delegate.editBoxEditingDidEnded) {
+                self._delegate.editBoxEditingDidEnded();
+            }
+        }
+        this._editing = false;
+    };
 
-	_p.clear = function () {
-		this._node = null;
-		this.setDelegate(null);
-	};
+    _p.clear = function () {
+        this._node = null;
+        this.setDelegate(null);
+    };
 })();

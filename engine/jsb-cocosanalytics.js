@@ -25,7 +25,7 @@
 
 (function(){
 
-if (!jsb || !jsb.reflection) {
+if (!reflection || !reflection.bridge) {
     return;
 }
 
@@ -57,7 +57,7 @@ if (platform === sys.ANDROID) {
         }
 
         if (info && info.appID && info.appSecret && info.channel) {
-            jsb.reflection.callStaticMethod(cls_CAAgentWrapper,
+            reflection.bridge.callStaticMethod(cls_CAAgentWrapper,
                 "init", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                 info.channel, info.appID, info.appSecret);
         } else {
@@ -65,39 +65,39 @@ if (platform === sys.ANDROID) {
         }
     };
     cocosAnalytics.isInited = function() {
-        return jsb.reflection.callStaticMethod(cls_CAAgent, "isInited", "()Z");
+        return reflection.bridge.callStaticMethod(cls_CAAgent, "isInited", "()Z");
     };
 
     cocosAnalytics.enableDebug = function(enabled) {
-        jsb.reflection.callStaticMethod(cls_CAAgent,
+        reflection.bridge.callStaticMethod(cls_CAAgent,
                 "enableDebug", "(Z)V",
                 enabled);
     };
 
     cocosAnalytics.CAAccount = {
         loginStart: function() {
-            jsb.reflection.callStaticMethod(cls_CAAccount, "loginStart", "()V");
+            reflection.bridge.callStaticMethod(cls_CAAccount, "loginStart", "()V");
         },
 
         loginSuccess: function(info) {
             if (info && info.userID) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "loginSuccess", "(Ljava/lang/String;)V", info.userID);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "loginSuccess", "(Ljava/lang/String;)V", info.userID);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAAccount.loginSuccess are wrong!");
             }
         },
 
         loginFailed: function() {
-            jsb.reflection.callStaticMethod(cls_CAAccount, "loginFailed", "()V");
+            reflection.bridge.callStaticMethod(cls_CAAccount, "loginFailed", "()V");
         },
 
         logout: function(info) {
-            jsb.reflection.callStaticMethod(cls_CAAccount, "logout", "()V");
+            reflection.bridge.callStaticMethod(cls_CAAccount, "logout", "()V");
         },
 
         setAccountType: function(type) {
             if (type) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setAccountType", "(Ljava/lang/String;)V", type);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setAccountType", "(Ljava/lang/String;)V", type);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAAccount.setAccountType are wrong!");
             }
@@ -105,7 +105,7 @@ if (platform === sys.ANDROID) {
 
         setAge: function(age) {
             if (age) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setAge", "(I)V", age);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setAge", "(I)V", age);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAAccount.setAge is wrong!");
             }
@@ -113,7 +113,7 @@ if (platform === sys.ANDROID) {
 
         setGender: function(gender) {
             if (gender) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setGender", "(I)V", gender);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setGender", "(I)V", gender);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAAccount.setGender is wrong!");
             }
@@ -121,7 +121,7 @@ if (platform === sys.ANDROID) {
 
         setLevel: function(level) {
             if (level) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setLevel", "(I)V", level);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setLevel", "(I)V", level);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAAccount.setLevel is wrong!");
             }
@@ -129,7 +129,7 @@ if (platform === sys.ANDROID) {
 
         createRole: function(info) {
             if (info && info.roleID && info.userName && info.race && info['class'] && info.gameServer) {
-                jsb.reflection.callStaticMethod(cls_CAAccount,
+                reflection.bridge.callStaticMethod(cls_CAAccount,
                     "createRole", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                     info.roleID, info.userName, info.race, info['class'], info.gameServer);
             } else {
@@ -141,7 +141,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAEvent = {
         onEvent: function(info) {
             if (info && info.eventName) {
-                jsb.reflection.callStaticMethod(cls_CAEvent, "onEvent", "(Ljava/lang/String;)V", info.eventName);
+                reflection.bridge.callStaticMethod(cls_CAEvent, "onEvent", "(Ljava/lang/String;)V", info.eventName);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAEvent.onEvent is wrong!");
             }
@@ -149,7 +149,7 @@ if (platform === sys.ANDROID) {
 
         onEventStart: function(info) {
             if (info && info.eventName) {
-                jsb.reflection.callStaticMethod(cls_CAEvent, "onEventStart", "(Ljava/lang/String;)V", info.eventName);
+                reflection.bridge.callStaticMethod(cls_CAEvent, "onEventStart", "(Ljava/lang/String;)V", info.eventName);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAEvent.onEventStart is wrong!");
             }
@@ -157,7 +157,7 @@ if (platform === sys.ANDROID) {
 
         onEventEnd: function(info) {
             if (info && info.eventName) {
-                jsb.reflection.callStaticMethod(cls_CAEvent, "onEventEnd", "(Ljava/lang/String;)V", info.eventName);
+                reflection.bridge.callStaticMethod(cls_CAEvent, "onEventEnd", "(Ljava/lang/String;)V", info.eventName);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAEvent.onEventEnd is wrong!");
             }
@@ -167,7 +167,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAPayment = {
         payBegin: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "payBegin", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -177,7 +177,7 @@ if (platform === sys.ANDROID) {
 
         paySuccess: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "paySuccess", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -187,7 +187,7 @@ if (platform === sys.ANDROID) {
 
         payFailed: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "payFailed", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -197,7 +197,7 @@ if (platform === sys.ANDROID) {
 
         payCanceled: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "payCanceled", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -209,7 +209,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CALevels = {
         begin: function(info) {
             if (info && info.level) {
-                jsb.reflection.callStaticMethod(cls_CALevels, "begin", "(Ljava/lang/String;)V", info.level);
+                reflection.bridge.callStaticMethod(cls_CALevels, "begin", "(Ljava/lang/String;)V", info.level);
             } else {
                 console.error("The argument passed to cocosAnalytics.CALevels.begin is wrong!");
             }
@@ -217,7 +217,7 @@ if (platform === sys.ANDROID) {
 
         complete: function(info) {
             if (info && info.level) {
-                jsb.reflection.callStaticMethod(cls_CALevels, "complete", "(Ljava/lang/String;)V", info.level);
+                reflection.bridge.callStaticMethod(cls_CALevels, "complete", "(Ljava/lang/String;)V", info.level);
             } else {
                 console.error("The argument passed to cocosAnalytics.CALevels.complete is wrong!");
             }
@@ -226,7 +226,7 @@ if (platform === sys.ANDROID) {
         failed: function(info) {
             if (info && info.level) {
                 info.reason = info.reason || "";
-                jsb.reflection.callStaticMethod(cls_CALevels, "failed", "(Ljava/lang/String;Ljava/lang/String;)V", info.level, info.reason);
+                reflection.bridge.callStaticMethod(cls_CALevels, "failed", "(Ljava/lang/String;Ljava/lang/String;)V", info.level, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CALevels.failed are wrong!");
             }
@@ -246,7 +246,7 @@ if (platform === sys.ANDROID) {
 
         begin: function(info) {
             if (info && info.taskID && info.type) {
-                jsb.reflection.callStaticMethod(cls_CATask, "begin", "(Ljava/lang/String;I)V", info.taskID, info.type);
+                reflection.bridge.callStaticMethod(cls_CATask, "begin", "(Ljava/lang/String;I)V", info.taskID, info.type);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CATask.begin are wrong!");
             }
@@ -254,7 +254,7 @@ if (platform === sys.ANDROID) {
 
         complete: function(info) {
             if (info && info.taskID) {
-                jsb.reflection.callStaticMethod(cls_CATask, "complete", "(Ljava/lang/String;)V", info.taskID);
+                reflection.bridge.callStaticMethod(cls_CATask, "complete", "(Ljava/lang/String;)V", info.taskID);
             } else {
                 console.error("The argument passed to cocosAnalytics.CATask.complete is wrong!");
             }
@@ -263,7 +263,7 @@ if (platform === sys.ANDROID) {
         failed: function(info) {
             if (info && info.taskID) {
                 info.reason = info.reason || "";
-                jsb.reflection.callStaticMethod(cls_CATask, "failed", "(Ljava/lang/String;Ljava/lang/String;)V", info.taskID, info.reason);
+                reflection.bridge.callStaticMethod(cls_CATask, "failed", "(Ljava/lang/String;Ljava/lang/String;)V", info.taskID, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CATask.failed are wrong!");
             }
@@ -273,7 +273,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAItem = {
         buy: function(info) {
             if (info && info.itemID && info.itemType && info.itemCount && info.virtualCoin && info.virtualType && info.consumePoint) {
-                jsb.reflection.callStaticMethod(cls_CAItem, "buy", "(Ljava/lang/String;Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V",
+                reflection.bridge.callStaticMethod(cls_CAItem, "buy", "(Ljava/lang/String;Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V",
                     info.itemID, info.itemType, info.itemCount, info.virtualCoin, info.virtualType, info.consumePoint);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAItem.buy are wrong!");
@@ -282,7 +282,7 @@ if (platform === sys.ANDROID) {
 
         get: function(info) {
             if (info && info.itemID && info.itemType && info.itemCount && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAItem, "get", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
+                reflection.bridge.callStaticMethod(cls_CAItem, "get", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
                     info.itemID, info.itemType, info.itemCount, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAItem.get are wrong!");
@@ -291,7 +291,7 @@ if (platform === sys.ANDROID) {
 
         consume: function(info) {
             if (info && info.itemID && info.itemType && info.itemCount && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAItem, "consume", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
+                reflection.bridge.callStaticMethod(cls_CAItem, "consume", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
                     info.itemID, info.itemType, info.itemCount, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAItem.consume are wrong!");
@@ -302,7 +302,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAVirtual = {
         setVirtualNum: function(info) {
             if (info && info.type && info.count) {
-                jsb.reflection.callStaticMethod(cls_CAVirtual, "setVirtualNum", "(Ljava/lang/String;J)V",
+                reflection.bridge.callStaticMethod(cls_CAVirtual, "setVirtualNum", "(Ljava/lang/String;J)V",
                     info.type, info.count);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAVirtual.setVirtualNum are wrong!");
@@ -311,7 +311,7 @@ if (platform === sys.ANDROID) {
 
         get: function(info) {
             if (info && info.type && info.count && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAVirtual, "get", "(Ljava/lang/String;JLjava/lang/String;)V",
+                reflection.bridge.callStaticMethod(cls_CAVirtual, "get", "(Ljava/lang/String;JLjava/lang/String;)V",
                     info.type, info.count, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAVirtual.get are wrong!");
@@ -320,7 +320,7 @@ if (platform === sys.ANDROID) {
 
         consume: function(info) {
             if (info && info.type && info.count && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAVirtual, "consume", "(Ljava/lang/String;JLjava/lang/String;)V",
+                reflection.bridge.callStaticMethod(cls_CAVirtual, "consume", "(Ljava/lang/String;JLjava/lang/String;)V",
                     info.type, info.count, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAVirtual.consume are wrong!");
@@ -344,13 +344,13 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.init = function(info) {
 
         if (!info.channel) {
-            var anysdkChannelID = jsb.reflection.callStaticMethod(cls_JSB_PlatformIOS, "getChannelID");
+            var anysdkChannelID = reflection.bridge.callStaticMethod(cls_JSB_PlatformIOS, "getChannelID");
             console.log("Found AnySDK channel ID: " + anysdkChannelID);
             info.channel = anysdkChannelID;
         }
 
         if (info && info.appID && info.appSecret && info.channel) {
-            jsb.reflection.callStaticMethod(cls_CAAgent,
+            reflection.bridge.callStaticMethod(cls_CAAgent,
                 "init:appID:appSecret:",
                 info.channel, info.appID, info.appSecret);
         } else {
@@ -359,10 +359,10 @@ if (platform === sys.ANDROID) {
     };
 
     cocosAnalytics.isInited = function() {
-        return jsb.reflection.callStaticMethod(cls_CAAgent, "isInited");
+        return reflection.bridge.callStaticMethod(cls_CAAgent, "isInited");
     };
     cocosAnalytics.enableDebug = function(enabled) {
-        jsb.reflection.callStaticMethod(cls_CAAgent,
+        reflection.bridge.callStaticMethod(cls_CAAgent,
                 "enableDebug:",
                 enabled);
     };
@@ -370,28 +370,28 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAAccount = {
 
         loginStart: function() {
-            jsb.reflection.callStaticMethod(cls_CAAccount, "loginStart");
+            reflection.bridge.callStaticMethod(cls_CAAccount, "loginStart");
         },
 
         loginSuccess: function(info) {
             if (info && info.userID) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "loginSuccess:", info.userID);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "loginSuccess:", info.userID);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAAccount.loginSuccess are wrong!");
             }
         },
 
         loginFailed: function() {
-            jsb.reflection.callStaticMethod(cls_CAAccount, "loginFailed");
+            reflection.bridge.callStaticMethod(cls_CAAccount, "loginFailed");
         },
 
         logout: function(info) {
-            jsb.reflection.callStaticMethod(cls_CAAccount, "logout");
+            reflection.bridge.callStaticMethod(cls_CAAccount, "logout");
         },
 
         setAccountType: function(type) {
             if (type) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setAccountType:", type);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setAccountType:", type);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAAccount.setAccountType are wrong!");
             }
@@ -399,7 +399,7 @@ if (platform === sys.ANDROID) {
 
         setAge: function(age) {
             if (age) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setAge:", age);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setAge:", age);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAAccount.setAge is wrong!");
             }
@@ -407,7 +407,7 @@ if (platform === sys.ANDROID) {
 
         setGender: function(gender) {
             if (gender) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setGender:", gender);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setGender:", gender);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAAccount.setGender is wrong!");
             }
@@ -415,7 +415,7 @@ if (platform === sys.ANDROID) {
 
         setLevel: function(level) {
             if (level) {
-                jsb.reflection.callStaticMethod(cls_CAAccount, "setLevel:", level);
+                reflection.bridge.callStaticMethod(cls_CAAccount, "setLevel:", level);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAAccount.setLevel is wrong!");
             }
@@ -423,7 +423,7 @@ if (platform === sys.ANDROID) {
 
         createRole: function(info) {
             if (info && info.roleID && info.userName && info.race && info['class'] && info.gameServer) {
-                jsb.reflection.callStaticMethod(cls_CAAccount,
+                reflection.bridge.callStaticMethod(cls_CAAccount,
                     "createRole:userName:race:roleClass:gameServer:",
                     info.roleID, info.userName, info.race, info['class'], info.gameServer);
             } else {
@@ -435,7 +435,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAEvent = {
         onEvent: function(info) {
             if (info && info.eventName) {
-                jsb.reflection.callStaticMethod(cls_CAEvent, "onEvent:", info.eventName);
+                reflection.bridge.callStaticMethod(cls_CAEvent, "onEvent:", info.eventName);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAEvent.onEvent is wrong!");
             }
@@ -443,7 +443,7 @@ if (platform === sys.ANDROID) {
 
         onEventStart: function(info) {
             if (info && info.eventName) {
-                jsb.reflection.callStaticMethod(cls_CAEvent, "onEventStart:", info.eventName);
+                reflection.bridge.callStaticMethod(cls_CAEvent, "onEventStart:", info.eventName);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAEvent.onEventStart is wrong!");
             }
@@ -451,7 +451,7 @@ if (platform === sys.ANDROID) {
 
         onEventEnd: function(info) {
             if (info && info.eventName) {
-                jsb.reflection.callStaticMethod(cls_CAEvent, "onEventEnd:", info.eventName);
+                reflection.bridge.callStaticMethod(cls_CAEvent, "onEventEnd:", info.eventName);
             } else {
                 console.error("The argument passed to cocosAnalytics.CAEvent.onEventEnd is wrong!");
             }
@@ -461,7 +461,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAPayment = {
         payBegin: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "peiBegin:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -471,7 +471,7 @@ if (platform === sys.ANDROID) {
 
         paySuccess: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "peiSuccess:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -481,7 +481,7 @@ if (platform === sys.ANDROID) {
 
         payFailed: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "peiFailed:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -491,7 +491,7 @@ if (platform === sys.ANDROID) {
 
         payCanceled: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
-                jsb.reflection.callStaticMethod(cls_CAPayment,
+                reflection.bridge.callStaticMethod(cls_CAPayment,
                     "peiCanceled:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
@@ -503,7 +503,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CALevels = {
         begin: function(info) {
             if (info && info.level) {
-                jsb.reflection.callStaticMethod(cls_CALevels, "begin:", info.level);
+                reflection.bridge.callStaticMethod(cls_CALevels, "begin:", info.level);
             } else {
                 console.error("The argument passed to cocosAnalytics.CALevels.begin is wrong!");
             }
@@ -511,7 +511,7 @@ if (platform === sys.ANDROID) {
 
         complete: function(info) {
             if (info && info.level) {
-                jsb.reflection.callStaticMethod(cls_CALevels, "complete:", info.level);
+                reflection.bridge.callStaticMethod(cls_CALevels, "complete:", info.level);
             } else {
                 console.error("The argument passed to cocosAnalytics.CALevels.complete is wrong!");
             }
@@ -520,7 +520,7 @@ if (platform === sys.ANDROID) {
         failed: function(info) {
             if (info && info.level) {
                 info.reason = info.reason || "";
-                jsb.reflection.callStaticMethod(cls_CALevels, "failed:reason:", info.level, info.reason);
+                reflection.bridge.callStaticMethod(cls_CALevels, "failed:reason:", info.level, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CALevels.failed are wrong!");
             }
@@ -540,7 +540,7 @@ if (platform === sys.ANDROID) {
 
         begin: function(info) {
             if (info && info.taskID && info.type) {
-                jsb.reflection.callStaticMethod(cls_CATask, "begin:taskType:", info.taskID, info.type);
+                reflection.bridge.callStaticMethod(cls_CATask, "begin:taskType:", info.taskID, info.type);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CATask.begin are wrong!");
             }
@@ -548,7 +548,7 @@ if (platform === sys.ANDROID) {
 
         complete: function(info) {
             if (info && info.taskID) {
-                jsb.reflection.callStaticMethod(cls_CATask, "complete:", info.taskID);
+                reflection.bridge.callStaticMethod(cls_CATask, "complete:", info.taskID);
             } else {
                 console.error("The argument passed to cocosAnalytics.CATask.complete is wrong!");
             }
@@ -557,7 +557,7 @@ if (platform === sys.ANDROID) {
         failed: function(info) {
             if (info && info.taskID) {
                 info.reason = info.reason || "";
-                jsb.reflection.callStaticMethod(cls_CATask, "failed:reason:", info.taskID, info.reason);
+                reflection.bridge.callStaticMethod(cls_CATask, "failed:reason:", info.taskID, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CATask.failed are wrong!");
             }
@@ -567,7 +567,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAItem = {
         buy: function(info) {
             if (info && info.itemID && info.itemType && info.itemCount && info.virtualCoin && info.virtualType && info.consumePoint) {
-                jsb.reflection.callStaticMethod(cls_CAItem, "buy:type:count:virtualCoin:virtualType:consumePoint:",
+                reflection.bridge.callStaticMethod(cls_CAItem, "buy:type:count:virtualCoin:virtualType:consumePoint:",
                     info.itemID, info.itemType, info.itemCount, info.virtualCoin, info.virtualType, info.consumePoint);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAItem.buy are wrong!");
@@ -576,7 +576,7 @@ if (platform === sys.ANDROID) {
 
         get: function(info) {
             if (info && info.itemID && info.itemType && info.itemCount && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAItem, "get:type:count:reason:",
+                reflection.bridge.callStaticMethod(cls_CAItem, "get:type:count:reason:",
                     info.itemID, info.itemType, info.itemCount, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAItem.get are wrong!");
@@ -585,7 +585,7 @@ if (platform === sys.ANDROID) {
 
         consume: function(info) {
             if (info && info.itemID && info.itemType && info.itemCount && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAItem, "consume:type:count:reason:",
+                reflection.bridge.callStaticMethod(cls_CAItem, "consume:type:count:reason:",
                     info.itemID, info.itemType, info.itemCount, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAItem.consume are wrong!");
@@ -596,7 +596,7 @@ if (platform === sys.ANDROID) {
     cocosAnalytics.CAVirtual = {
         setVirtualNum: function(info) {
             if (info && info.type && info.count) {
-                jsb.reflection.callStaticMethod(cls_CAVirtual, "setVirtualNum:count:",
+                reflection.bridge.callStaticMethod(cls_CAVirtual, "setVirtualNum:count:",
                     info.type, info.count);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAVirtual.setVirtualNum are wrong!");
@@ -605,7 +605,7 @@ if (platform === sys.ANDROID) {
 
         get: function(info) {
             if (info && info.type && info.count && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAVirtual, "get:count:reason:",
+                reflection.bridge.callStaticMethod(cls_CAVirtual, "get:count:reason:",
                     info.type, info.count, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAVirtual.get are wrong!");
@@ -614,7 +614,7 @@ if (platform === sys.ANDROID) {
 
         consume: function(info) {
             if (info && info.type && info.count && info.reason) {
-                jsb.reflection.callStaticMethod(cls_CAVirtual, "consume:count:reason:",
+                reflection.bridge.callStaticMethod(cls_CAVirtual, "consume:count:reason:",
                     info.type, info.count, info.reason);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAVirtual.consume are wrong!");

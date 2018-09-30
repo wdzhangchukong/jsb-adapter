@@ -31,56 +31,82 @@ cc.Audio = function (src) {
     this.id = -1;
 };
 
-if (CC_RUNTIME) {
-    var rt = loadRuntime();
-    jsb.AudioEngine = rt.AudioEngine;
-}
+cc.AudioEngine = {};
 
-(function (proto, audioEngine) {
+cc.AudioEngine.AudioState = {
+    ERROR: -1,
+    INITIALZING: 0,
+    PLAYING: 1,
+    PAUSED: 2,
+    STOPPED: 3,
+};
+
+(function (proto) {
+
+    function playInnerAudio(src, loop, volume) {
+        var innerAudio = qg.createInnerAudioContext();
+        innerAudio.state = cc.AudioEngine.AudioState.PLAYING;
+        innerAudio.src = "" + src;
+        innerAudio.loop = loop;
+        innerAudio.volume = volume;
+        innerAudio.play();
+        return innerAudio;
+    }
 
     // Using the new audioEngine
-    cc.audioEngine = audioEngine;
-    audioEngine.setMaxWebAudioSize = function () { };
+    cc.audioEngine = {};
 
-    cc.Audio.State = audioEngine.AudioState;
+    cc.audioEngine.setMaxWebAudioSize = function () {};
+    cc.audioEngine.audios = [];
+
+    cc.Audio.State = cc.AudioEngine.AudioState;
 
     proto.play = function () {
-        audioEngine.stop(this.id);
-
-        let clip = this.src;
-        if (clip.loaded) {
-            this.id = audioEngine.play2d(clip._nativeAsset, this.loop, this.volume);
+        var clip = this.src;
+        if (typeof volume !== 'number') {
+            volume = 1;
+        }
+        var path;
+        if (typeof clip === 'string') {
+            // backward compatibility since 1.10
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
+            path = clip;
         }
         else {
-            let self = this;
-            cc.loader.load({
-                url: clip.nativeUrl,
-                // For audio, we should skip loader otherwise it will load a new audioClip.
-                skips: ['Loader'],
-            },
-            function (err, audioNativeAsset) {
-                if (err) {
-                    cc.error(err);
-                    return;
-                }
-                if (!clip.loaded) {
-                    clip._nativeAsset = audioNativeAsset;
-                    self.id = audioEngine.play2d(audioNativeAsset, self.loop, self.volume);
-                }
-            });
+            if (!clip) {
+                return;
+            }
+            path = clip._nativeAsset;
         }
+        var md5Pipe = cc.loader.md5Pipe;
+        if (md5Pipe) {
+            path = md5Pipe.transformURL(path);
+        }
+        var innerAudio = playInnerAudio(path, this.loop, this.volume);
+        this.id = innerAudio;
+        return innerAudio;
     };
 
     proto.pause = function () {
-        audioEngine.pause(this.id);
+        if (this.id != -1) {
+            this.id.state = cc.AudioEngine.AudioState.PAUSED;
+            this.id.pause();
+        }
     };
 
     proto.resume = function () {
-        audioEngine.resume(this.id);
+        if (this.id != -1) {
+            this.id.state = cc.AudioEngine.AudioState.PLAYING;
+            this.id.play();
+        }
     };
 
     proto.stop = function () {
-        audioEngine.stop(this.id);
+        if (this.id != -1) {
+            this.id.state = cc.AudioEngine.AudioState.STOPPED;
+            this.id.stop();
+            this.id = -1;
+        }
     };
 
     proto.destroy = function () {
@@ -88,8 +114,10 @@ if (CC_RUNTIME) {
     };
 
     proto.setLoop = function (loop) {
-        this.loop = loop;
-        audioEngine.setLoop(this.id, loop);
+        if (this.id != -1) {
+            this.loop = loop;
+            this.id.loop = loop;
+        }
     };
 
     proto.getLoop = function () {
@@ -97,8 +125,10 @@ if (CC_RUNTIME) {
     };
 
     proto.setVolume = function (volume) {
-        this.volume = volume;
-        return audioEngine.setVolume(this.id, volume);
+        if (this.id != -1) {
+            this.volume = volume;
+            this.id.volume = volume;
+        }
     };
 
     proto.getVolume = function () {
@@ -106,20 +136,37 @@ if (CC_RUNTIME) {
     };
 
     proto.setCurrentTime = function (time) {
-        audioEngine.setCurrentTime(this.id, time);
+        if (this.id != -1) {
+            this.id.seek(time);
+        }
     };
 
     proto.getCurrentTime = function () {
-        return audioEngine.getCurrentTime(this.id)
+        if (this.id != -1) {
+            return new Number(this.id.currentTime);   
+        }
+        return new Number(0);
     };
 
     proto.getDuration = function () {
-        return audioEngine.getDuration(this.id)
+        if (this.id != -1) {
+            return new Number(this.id.duration);   
+        }
+        return new Number(0);
     };
 
     proto.getState = function () {
-        return audioEngine.getState(this.id)
+        if (this.id != -1 && this.id.currentTime <= this.id.duration) {
+            return this.id.state;
+        }
+        return cc.AudioEngine.AudioState.ERROR;
     };
+
+    proto.setFinishCallback = function (id, callback) {
+        if (this.id != -1) {
+            this.id.onEnded(callback) 
+        }
+    }
 
     // polyfill audioEngine
 
@@ -133,7 +180,7 @@ if (CC_RUNTIME) {
         volume: 1
     };
 
-    audioEngine.play = function (clip, loop, volume) {
+    cc.audioEngine.play = function (clip, loop, volume) {
         if (typeof volume !== 'number') {
             volume = 1;
         }
@@ -151,128 +198,262 @@ if (CC_RUNTIME) {
             if (!clip) {
                 return;
             }
+            path = clip._nativeAsset;
+        }
+        var md5Pipe = cc.loader.md5Pipe;
+        if (md5Pipe) {
+            path = md5Pipe.transformURL(path);
+        }
+        var innerAudio = playInnerAudio(path, loop, volume);
+        cc.audioEngine.audios.push(innerAudio);
+        return innerAudio;
+    };
+    cc.audioEngine.playMusic = function (clip, loop) {
+        cc.audioEngine.stop(_music.id);
+        _music.id = cc.audioEngine.play(clip, loop, _music.volume);
+        _music.loop = loop;
+        _music.clip = clip;
+        return _music.id;
+    };
+    cc.audioEngine.stopMusic = function () {
+        _music.id.state = cc.AudioEngine.AudioState.STOPPED;
+        _music.id.stop();
+    };
+    cc.audioEngine.pauseMusic = function () {
+        _music.id.state = cc.AudioEngine.AudioState.PAUSED;
+        _music.id.pause();
+        return _music.id;
+    };
+    cc.audioEngine.resumeMusic = function () {
+        _music.id.state = cc.AudioEngine.AudioState.PLAYING;
+        _music.id.play();
+        return _music.id;
+    };
+    cc.audioEngine.getMusicVolume = function () {
+        return _music.volume;
+    };
+    cc.audioEngine.setMusicVolume = function (volume) {
+        _music.volume = volume;
+        _music.id.volume = _music.volume;
+        return volume;
+    };
+    cc.audioEngine.isMusicPlaying = function () {
+        return cc.audioEngine.getState(_music.id) === cc.AudioEngine.AudioState.PLAYING;
+    };
+    cc.audioEngine.playEffect = function (clip, loop) {
+        const volume = _effect.volume;
+
+        if (typeof clip === 'string') {
+            return cc.audioEngine.play(path, loop, volume);
+        }
+        else {
+            if (!clip) {
+                return;
+            }
             if (clip.loaded) {
-                return audioEngine.play2d(clip._nativeAsset, loop, volume);
+                return cc.audioEngine.play(clip._nativeAsset, loop, volume);
             }
             else {
                 cc.loader.load({
                     url: clip.nativeUrl,
-                    // For audio, we should skip loader otherwise it will load a new audioClip.
-                    skips: ['Loader'],
+                    skips: ['Loader']
                 },
-                function (err, audioNativeAsset) {
+                function(err, audioNativeAsset) {
                     if (err) {
                         cc.error(err);
                         return;
                     }
                     if (!clip.loaded) {
                         clip._nativeAsset = audioNativeAsset;
-                        audioEngine.play2d(audioNativeAsset, loop, volume);
+                        cc.audioEngine.play(audioNativeAsset, loop, volume);
                     }
                 });
-                // Deffered loading return audioID -1
+
                 return -1;
             }
         }
     };
-    audioEngine.playMusic = function (clip, loop) {
-        audioEngine.stop(_music.id);
-        _music.id = audioEngine.play(clip, loop, _music.volume);
-        _music.loop = loop;
-        _music.clip = clip;
-        return _music.id;
-    };
-    audioEngine.stopMusic = function () {
-        audioEngine.stop(_music.id);
-    };
-    audioEngine.pauseMusic = function () {
-        audioEngine.pause(_music.id);
-        return _music.id;
-    };
-    audioEngine.resumeMusic = function () {
-        audioEngine.resume(_music.id);
-        return _music.id;
-    };
-    audioEngine.getMusicVolume = function () {
-        return _music.volume;
-    };
-    audioEngine.setMusicVolume = function (volume) {
-        _music.volume = volume;
-        audioEngine.setVolume(_music.id, _music.volume);
-        return volume;
-    };
-    audioEngine.isMusicPlaying = function () {
-        return audioEngine.getState(_music.id) === audioEngine.AudioState.PLAYING;
-    };
-    audioEngine.playEffect = function (filePath, loop) {
-        return audioEngine.play(filePath, loop || false, _effect.volume);
-    };
-    audioEngine.setEffectsVolume = function (volume) {
+    cc.audioEngine.setEffectsVolume = function (volume) {
+        for (const id in cc.audioEngine.audios) {
+            if (id === _music.id) continue;
+            cc.audioEngine.setVolume(id, volume);
+        }
+
         _effect.volume = volume;
     };
-    audioEngine.getEffectsVolume = function () {
+    cc.audioEngine.getEffectsVolume = function () {
         return _effect.volume;
     };
-    audioEngine.pauseEffect = function (audioID) {
-        return audioEngine.pause(audioID);
+    cc.audioEngine.pauseEffect = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            return id.pause();
+        }
     };
-    audioEngine.pauseAllEffects = function () {
-        var musicPlay = audioEngine.getState(_music.id) === audioEngine.AudioState.PLAYING;
-        audioEngine.pauseAll();
+    cc.audioEngine.pauseAllEffects = function () {
+        var musicPlay = cc.audioEngine.getState(_music.id) === cc.AudioEngine.AudioState.PLAYING;
+        cc.audioEngine.pauseAll();
         if (musicPlay) {
-            audioEngine.resume(_music.id);
+            _music.id.play();
         }
     };
-    audioEngine.resumeEffect = function (id) {
-        audioEngine.resume(id);
-    };
-    audioEngine.resumeAllEffects = function () {
-        var musicPaused = audioEngine.getState(_music.id) === audioEngine.AudioState.PAUSED;
-        audioEngine.resumeAll();
-        if (musicPaused && audioEngine.getState(_music.id) === audioEngine.AudioState.PLAYING) {
-            audioEngine.pause(_music.id);
+    cc.audioEngine.resumeEffect = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            cc.audioEngine.resume(id);
         }
     };
-    audioEngine.stopEffect = function (id) {
-        return audioEngine.stop(id);
+    cc.audioEngine.resumeAllEffects = function () {
+        var musicPaused = cc.audioEngine.getState(_music.id) === cc.AudioEngine.AudioState.PAUSED;
+        cc.audioEngine.resumeAll();
+        if (musicPaused && cc.audioEngine.getState(_music.id) === cc.AudioEngine.AudioState.PLAYING) {
+            cc.audioEngine.pause(_music.id);
+        }
     };
-    audioEngine.stopAllEffects = function () {
-        var musicPlaying = audioEngine.getState(_music.id) === audioEngine.AudioState.PLAYING;
-        var currentTime = audioEngine.getCurrentTime(_music.id);
-        audioEngine.stopAll();
+    cc.audioEngine.stopEffect = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            return id.stop();
+        }
+    };
+    cc.audioEngine.stopAllEffects = function () {
+        var musicPlaying = cc.audioEngine.getState(_music.id) === cc.AudioEngine.AudioState.PLAYING;
+        var currentTime = cc.audioEngine.getCurrentTime(_music.id);
+        cc.audioEngine.stopAll();
         if (musicPlaying) {
-            _music.id = audioEngine.play(_music.clip, _music.loop);
-            audioEngine.setCurrentTime(_music.id, currentTime);
+            _music.id = cc.audioEngine.play(_music.clip, _music.loop);
+            _music.id.seek(currentTime);
         }
+    };
+
+    // Function Implement in C++
+    cc.audioEngine.getMaxAudioInstance = function () {
+        return 24;
+    };
+    cc.audioEngine.getState = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1 && id.currentTime <= id.duration) {
+            return id.state;
+        }
+        return cc.AudioEngine.AudioState.ERROR
+    }
+    cc.audioEngine.pauseAll = function () {
+        cc.audioEngine.audios.forEach(element => {
+            cc.audioEngine.pause(element);
+        });
+    }
+    cc.audioEngine.resumeAll = function () {
+        cc.audioEngine.audios.forEach(element => {
+            cc.audioEngine.resume(element);
+        });
+    }
+    cc.audioEngine.stopAll = function () {
+        cc.audioEngine.audios.forEach(element => {
+            cc.audioEngine.stop(element);
+        });
+    }
+    cc.audioEngine.stop = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        
+        if (index > -1) {
+            id.state = cc.AudioEngine.AudioState.STOPPED;
+            id.stop();
+            cc.audioEngine.audios = cc.audioEngine.audios.filter(function(item){ return item !== id});
+        }
+    };
+    cc.audioEngine.pause = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            id.state = cc.AudioEngine.AudioState.PAUSED;
+            id.pause();
+        }
+        return id;
+    };
+    cc.audioEngine.resume = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            id.state = cc.AudioEngine.AudioState.PLAYING;
+            id.play();
+        }
+        return id;
     };
 
     // incompatible implementation for game pause & resume
-    audioEngine._break = audioEngine.pauseAll;
-    audioEngine._restore = audioEngine.resumeAll;
+    cc.audioEngine._break = cc.audioEngine.pauseAll;
+    cc.audioEngine._restore = cc.audioEngine.resumeAll;
 
     // deprecated
 
-    audioEngine._uncache = audioEngine.uncache;
-    audioEngine.uncache = function (clip) {
-        var path;
-        if (typeof clip === 'string') {
-            // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
-            path = clip;
-        }
-        else {
-            if (!clip) {
-                return;
-            }
-            path = clip._nativeAsset;
-        }
-        audioEngine._uncache(path);
+    cc.audioEngine._uncache = cc.audioEngine.uncache;
+    cc.audioEngine.uncache = function (clip) {
+        // No used in vivo
     };
 
-    audioEngine._preload = audioEngine.preload;
-    audioEngine.preload = function (filePath, callback) {
+    cc.audioEngine._preload = cc.audioEngine.preload;
+    cc.audioEngine.preload = function (filePath, callback) {
         cc.warn('`cc.audioEngine.preload` is deprecated, use `cc.loader.loadRes(url, cc.AudioClip)` instead please.');
-        audioEngine._preload(filePath, callback);
     };
 
-})(cc.Audio.prototype, jsb.AudioEngine);
+    cc.audioEngine.setFinishCallback = function (id, callback) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            id.onEnded(callback);
+        }
+    }
+
+    cc.audioEngine.getCurrentTime = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            return id.currentTime;
+        }
+        return new Number(0);
+    };
+
+    cc.audioEngine.setCurrentTime = function (id, time) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            id.seek(time)
+        }
+    };
+
+    cc.audioEngine.setLoop = function (id, loop) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            id.loop = loop;
+        }
+    };
+
+    cc.audioEngine.isLoop = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            return id.loop;
+        }
+        return false;
+    };
+
+    cc.audioEngine.setVolume = function (id, volume) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            id.volume = volume;
+        }
+    };
+
+    cc.audioEngine.getVolume = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            return id.volume;
+        }
+        return new Number(0);
+    };
+
+    cc.audioEngine.getDuration = function (id) {
+        var index = cc.audioEngine.audios.indexOf(id);
+        if (index > -1) {
+            return new Number(id.duration);
+        }
+        return new Number(0);
+    };
+
+    cc.audioEngine.setMaxAudioInstance = function (num) {};
+
+})(cc.Audio.prototype);

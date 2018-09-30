@@ -27,16 +27,11 @@ cc.game.restart = function () {
     __restartVM();
 };
 
-jsb.onHide = function () {
+qg.onHide(function (data) {
     cc.game.emit(cc.game.EVENT_HIDE);
-};
+});
 
-jsb.onShow = function () {
+qg.onShow(function () {
     cc.game.emit(cc.game.EVENT_SHOW);
-};
-
-jsb.onResize = function (size) {
-    window.resize(size.width, size.height);
-    cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
-};
+});
 
