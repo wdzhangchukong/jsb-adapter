@@ -68,23 +68,23 @@
         return 'done';
     }
 
-	cc.EditBox.prototype.editBoxEditingDidBegan = function () {
-		cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
-		this.node.emit('editing-did-began', this);
-	};
+    cc.EditBox.prototype.editBoxEditingDidBegan = function () {
+        cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
+        this.node.emit('editing-did-began', this);
+    };
 
-	cc.EditBox.prototype.editBoxEditingDidEnded = function () {
-		cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
-		this.node.emit('editing-did-ended', this);
-	};
+    cc.EditBox.prototype.editBoxEditingDidEnded = function () {
+        cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
+        this.node.emit('editing-did-ended', this);
+    };
 
-	cc.EditBox.prototype._updateStayOnTop = function () {
-		// jsb not support
-	};
+    cc.EditBox.prototype._updateStayOnTop = function () {
+        // jsb not support
+    };
 
-	_p.createInput = function() {
-		let editBoxImpl = this;
-		editBoxImpl._editing = true;
+    _p.createInput = function () {
+        let editBoxImpl = this;
+        editBoxImpl._editing = true;
 
         placeholderLabel.node.active = displayText === '';
         textLabel.node.active = displayText !== '';
@@ -118,30 +118,31 @@
             editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
         }
         qg.onKeyboardConfirm(onConfirm);
+    }
 
-	_p.setFocus = function () {
-		this._beginEditing();
-	};
-
-	_p.isFocused = function () {
-		return this._editing;
-	},
-
-    _p.setTabIndex = function (index) {
-        // not support 
+    _p.setFocus = function () {
+        this._beginEditing();
     };
 
-	_p._updateMatrix = function () {
-		// jsb not support 			
-	};
+    _p.isFocused = function () {
+        return this._editing;
+    };
+
+    _p.setTabIndex = function (index) {
+        // not support
+    };
+
+    _p._updateMatrix = function () {
+        // jsb not support
+    };
 
     _p.isFocused = function () {
-        // not support 	
-    },
+        // not support
+    };
 
-        _p.stayOnTop = function (flag) {
-            // not support 	
-        };
+    _p.stayOnTop = function (flag) {
+        // not support
+    };
 
     _p._updateMatrix = function () {
 
@@ -228,9 +229,9 @@
         this._returnType = returnType;
     };
 
-	_p._beginEditing = function () {
-		this.createInput();
-	};
+    _p._beginEditing = function () {
+        this.createInput();
+    };
 
     _p._endEditing = function () {
         let self = this;

@@ -25,16 +25,16 @@
  ****************************************************************************/
 'use strict';
 
-function downloadScript (item, callback) {
+function downloadScript(item, callback) {
     require(item.url);
     return null;
 }
 
-function downloadAudio (item) {
+function downloadAudio(item) {
     return item.url;
 }
 
-function loadAudio (item, callback) {
+function loadAudio(item, callback) {
     var loadByDeserializedAsset = item._owner instanceof cc.AudioClip;
     if (loadByDeserializedAsset) {
         return item.url;
@@ -52,13 +52,13 @@ function loadAudio (item, callback) {
 function downloadImage(item, callback) {
     let img = new Image();
     img.src = item.url;
-    img.onload = function(info) {
+    img.onload = function (info) {
         callback(null, img);
     }
     // Don't return anything to use async loading.
 }
 
-function _getFontFamily (fontHandle) {
+function _getFontFamily(fontHandle) {
     var ttfIndex = fontHandle.lastIndexOf(".ttf");
     if (ttfIndex === -1) return fontHandle;
 
@@ -74,7 +74,7 @@ function _getFontFamily (fontHandle) {
     }
     return fontFamilyName;
 }
-let downloadBinary, downloadText, loadFont;
+let loadFont;
 function downloadText(item, callback) {
     var url = item.url;
 
@@ -104,82 +104,81 @@ function downloadBinary(item, callback) {
         }
     });
 };
-    loadFont = function (item, callback) {
-        let url = item.url;
-        let fontFamilyName = _getFontFamily(url);
+loadFont = function (item, callback) {
+    let url = item.url;
+    let fontFamilyName = _getFontFamily(url);
 
-        let fontFace = new FontFace(fontFamilyName, "url('" + url + "')");
-        document.fonts.add(fontFace);
+    let fontFace = new FontFace(fontFamilyName, "url('" + url + "')");
+    document.fonts.add(fontFace);
 
-        fontFace.load();
-        fontFace.loaded.then(function() {
-            callback(null, fontFamilyName);
-        }, function () {
-            cc.warnID(4933, fontFamilyName);
-            callback(null, fontFamilyName);
-        });
-    };
-}
+    fontFace.load();
+    fontFace.loaded.then(function () {
+        callback(null, fontFamilyName);
+    }, function () {
+        cc.warnID(4933, fontFamilyName);
+        callback(null, fontFamilyName);
+    });
+};
 
 cc.loader.addDownloadHandlers({
     // JS
-    'js' : downloadScript,
-    'jsc' : downloadScript,
+    'js': downloadScript,
+    'jsc': downloadScript,
 
     // Images
-    'png' : downloadImage,
-    'jpg' : downloadImage,
-    'bmp' : downloadImage,
-    'jpeg' : downloadImage,
-    'gif' : downloadImage,
-    'ico' : downloadImage,
-    'tiff' : downloadImage,
-    'webp' : downloadImage,
-    'image' : downloadImage,
-    'pvr' : downloadImage,
-    'etc' : downloadImage,
+    'png': downloadImage,
+    'jpg': downloadImage,
+    'bmp': downloadImage,
+    'jpeg': downloadImage,
+    'gif': downloadImage,
+    'ico': downloadImage,
+    'tiff': downloadImage,
+    'webp': downloadImage,
+    'image': downloadImage,
+    'pvr': downloadImage,
+    'etc': downloadImage,
 
     // Audio
-    'mp3' : downloadAudio,
-    'ogg' : downloadAudio,
-    'wav' : downloadAudio,
-    'mp4' : downloadAudio,
-    'm4a' : downloadAudio,
+    'mp3': downloadAudio,
+    'ogg': downloadAudio,
+    'wav': downloadAudio,
+    'mp4': downloadAudio,
+    'm4a': downloadAudio,
 
     // Text
-    'txt' : downloadText,
-    'xml' : downloadText,
-    'vsh' : downloadText,
-    'fsh' : downloadText,
-    'atlas' : downloadText,
+    'txt': downloadText,
+    'xml': downloadText,
+    'vsh': downloadText,
+    'fsh': downloadText,
+    'atlas': downloadText,
 
-    'tmx' : downloadText,
-    'tsx' : downloadText,
+    'tmx': downloadText,
+    'tsx': downloadText,
 
-    'json' : downloadText,
-    'ExportJson' : downloadText,
-    'plist' : downloadText,
+    'json': downloadText,
+    'ExportJson': downloadText,
+    'plist': downloadText,
 
-    'fnt' : downloadText,
+    'fnt': downloadText,
 
-    'binary' : downloadBinary,
+    'binary': downloadBinary,
 
-    'default' : downloadText
+    'default': downloadText
 });
 
 cc.loader.addLoadHandlers({
     // Font
-    'font' : loadFont,
-    'eot' : loadFont,
-    'ttf' : loadFont,
-    'woff' : loadFont,
-    'svg' : loadFont,
-    'ttc' : loadFont,
+    'font': loadFont,
+    'eot': loadFont,
+    'ttf': loadFont,
+    'woff': loadFont,
+    'svg': loadFont,
+    'ttc': loadFont,
 
     // Audio
-    'mp3' : loadAudio,
-    'ogg' : loadAudio,
-    'wav' : loadAudio,
-    'mp4' : loadAudio,
-    'm4a' : loadAudio,
+    'mp3': loadAudio,
+    'ogg': loadAudio,
+    'wav': loadAudio,
+    'mp4': loadAudio,
+    'm4a': loadAudio,
 });
